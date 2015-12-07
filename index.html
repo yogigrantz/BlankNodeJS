@@ -1,0 +1,114 @@
+<html>
+<head>
+    <title>Hello Page</title>
+    <link href='https://fonts.googleapis.com/css?family=Play:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+    <script type="text/javascript">
+        angular
+         .module('app', [])
+         .controller('test', [
+        '$scope',
+        'apiFactory',
+        function ($scope, apiFactory) {
+
+            $scope.url = "http://localhost:88";
+            $scope.method = "GET";
+            $scope.data = { "mydogName": "Butter" };
+            $scope.params = { "learning": "NodeJS" };
+
+            $scope.testEndPoint = function () {
+                apiFactory({
+                    url: $scope.url,
+                    method: $scope.method,
+                    data: $scope.data,
+                    params: $scope.params
+                }).then(
+                function (result) {
+                    $scope.result = JSON.stringify(result, null, 2);
+                },
+                function (result) {
+                    $scope.result = JSON.stringify(result, null, 2);
+                }
+                );
+              }
+            }
+         ])
+            .factory('apiFactory', function ($http, $q) {
+                return function (config) {
+                    var defered = $q.defer();
+                    $http(config)
+                    .success(function (result, status, headers, config) {
+                        defered.resolve(result);
+                    })
+                    return defered.promise;
+                }
+            })
+    </script>
+    <style>
+        body {
+            padding-right: 20px;
+            font-family: 'Play', sans-serif;
+        }
+        .tallTextArea {
+            width:100%;
+            height:200px;
+        }
+        .pushdown30 {
+            margin-top: 30px;
+        }
+
+        .pushdown20 {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body ng-app="app">
+    <div class="container" ng-controller="test">
+        <h4><b>NodeJS Front End Test Page</b></h4>
+        <div class="row pushdown30">
+            <div class="col-sm-12 profDetailItems shaded">
+                <b>Simulated PostMan</b>
+            </div>
+        </div>
+
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">URL</div>
+            <div class="col-sm-6"><input class="form form-control" type="text" ng-model="url" /></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">Method</div>
+            <div class="col-sm-6">
+                <select class="form form-control" type="text" ng-model="method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">
+                Params
+            </div>
+            <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="params"></textarea></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">
+                Data
+            </div>
+            <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="data"></textarea></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"><button class="btn btn-danger" ng-click="testEndPoint()">Test the EndPoint</button></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">Result</div>
+            <div class="col-sm-6"><textarea class="tallTextArea" ng-model="result"></textarea></div>
+        </div>
+    </div>
+</body>
+
+</html>
