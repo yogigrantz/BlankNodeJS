@@ -11,7 +11,10 @@
          .controller('test', [
         '$scope',
         'apiFactory',
-        function ($scope, apiFactory) {
+        'fileReaderFactory',
+        'fileUpload',
+        '$q',
+        function ($scope, apiFactory, fileReaderFactory, fileUpload, $q) {
 
             $scope.url = "http://localhost:88";
             $scope.method = "GET";
@@ -32,9 +35,29 @@
                     $scope.result = JSON.stringify(result, null, 2);
                 }
                 );
-              }
             }
-         ])
+
+            //preview image
+            $scope.getFile = function () {
+                if (!$scope.fileUploadFile)
+                    return;
+
+                fileReaderFactory.readAsDataURL($scope.fileUploadFile, $scope)
+                    .then(function (result) {
+                        $scope.imgPreview = result;
+                    });
+            };
+
+            //post file to server
+            //upload document
+            $scope.uploadDoc = function () {
+                var uploadUrl = $scope.url + '/UploadImage';
+                fileUpload.uploadFileToUrl($scope.fileUploadFile, uploadUrl, function (result) {
+                    $scope.result = result;
+                });
+            }
+
+        }])
             .factory('apiFactory', function ($http, $q) {
                 return function (config) {
                     var defered = $q.defer();
@@ -45,16 +68,97 @@
                     return defered.promise;
                 }
             })
+        .directive('fileModel', ['$parse', function ($parse) {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+                    element.bind('change', function (e) {
+                        $parse(attrs.fileModel)
+                        .assign(scope, element[0].files[0]);
+                        scope.$apply();
+                        scope.getFile();
+                    });
+                }
+            };
+        }])
+        .factory('fileReaderFactory', function ($q, $log) {
+            return {
+                onLoad: function (reader, deferred, scope) {
+                    return function () {
+                        scope.$apply(function () {
+                            deferred.resolve(reader.result);
+                        });
+                    };
+                },
+                onError: function (reader, deferred, scope) {
+                    return function () {
+                        scope.$apply(function () {
+                            deferred.reject(reader.result);
+                        });
+                    };
+                },
+                onProgress: function (reader, scope) {
+                    return function (event) {
+                        scope.$broadcast("fileProgress",
+                            {
+                                total: event.total,
+                                loaded: event.loaded
+                            });
+                    };
+                },
+                getReader: function (deferred, scope) {
+                    var reader = new FileReader();
+                    reader.onload = this.onLoad(reader, deferred, scope);
+                    reader.onerror = this.onError(reader, deferred, scope);
+                    reader.onprogress = this.onProgress(reader, scope);
+                    return reader;
+                },
+
+                readAsDataURL: function (file, scope) {
+                    var deferred = $q.defer();
+
+                    var reader = this.getReader(deferred, scope);
+                    reader.readAsDataURL(file);
+
+                    return deferred.promise;
+                },
+
+                //return {
+                //    readAsDataUrl: readAsDataURL
+                //};
+            }
+        })
+        .service('fileUpload', ['$http', function ($http) {
+            this.uploadFileToUrl = function (file, uploadUrl, callback) {
+                var fd = new FormData();
+                fd.append('file', file);
+                $http.post(uploadUrl, fd, {
+                    transformRequest: angular.identity,
+                    headers: { 'Content-Type': undefined }
+                })
+                .success(function (result) {
+
+                    callback(result);
+
+                })
+                .error(function (err) {
+                    callback(err);
+                });
+            }
+        }])
+        ;
     </script>
     <style>
         body {
             padding-right: 20px;
             font-family: 'Play', sans-serif;
         }
+
         .tallTextArea {
-            width:100%;
-            height:200px;
+            width: 100%;
+            height: 200px;
         }
+
         .pushdown30 {
             margin-top: 30px;
         }
@@ -69,7 +173,7 @@
         <h4><b>NodeJS Front End Test Page</b></h4>
         <div class="row pushdown30">
             <div class="col-sm-12 profDetailItems shaded">
-                <b>Simulated PostMan</b>
+                <b>Simulated PostMan With File Upload</b>
             </div>
         </div>
 
@@ -99,6 +203,14 @@
                 Data
             </div>
             <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="data"></textarea></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">Upload</div>
+            <div class="col-sm-6">
+                <input name="file1" type="file" file-model="fileUploadFile" />
+                <img ng-if="imgPreview" class="img-responsive" ng-src="{{imgPreview}}" alt="" onerror="this.src='bundle.png';" />
+                <button class="btn btn-warning" ng-click="uploadDoc()">Upload File</button>
+            </div>
         </div>
         <div class="row pushdown20">
             <div class="col-sm-1"></div>

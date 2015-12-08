@@ -3,10 +3,16 @@
 //npm install express --save
 //npm install body-parser --save
 //npm install cors --save
+//npm install multer --save
+//npm install path --save 
 
 var express = require('express');
-var bodyParser = require('body-parser')
-var cors = require('cors')
+var bodyParser = require('body-parser');
+var cors = require('cors');
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' });
+var path = require('path');
+var fs = require("fs");
 
 var http = require('http');
 var app = express();
@@ -61,6 +67,11 @@ app.delete('/', function (req, res) {
     }
 });
 
+app.post('/UploadImage', upload.single('file'), function (req, res, next) {
+    console.log("Getting image file: " + req.file.originalname);
+    fs.rename('uploads/' + req.file.filename, 'uploads/' + req.file.filename + "_" + req.file.originalname);
+    res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, originalname: req.file.originalname });
+});
 // ---------------------------------------------------------------------------------------------------------------------
 
 http.createServer(app).listen(88);
