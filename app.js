@@ -15,14 +15,14 @@ var path = require('path');
 var fs = require("fs");
 
 var http = require('http');
-var app = express();
+var backEnd = express();
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use(bodyParser.urlencoded({   // to support URL-encoded bodies
+backEnd.use(bodyParser.json());
+backEnd.use(cors());
+backEnd.use(bodyParser.urlencoded({   // to support URL-encoded bodies
     extended: true
 }));
-app.use(function (req, res, next) {
+backEnd.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:89");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -32,7 +32,7 @@ app.use(function (req, res, next) {
 // ------------------------------------------- EndPoints ---------------------------------------------------------------
 
 
-app.get('/', function (req, res) {
+backEnd.get('/', function (req, res) {
     if (req.query) {
         var parmObject = req.query;
         parmObject.Message = "NodeJS WebAPI Get Test OK";
@@ -40,7 +40,7 @@ app.get('/', function (req, res) {
     }
 });
 
-app.post('/', function (req, res) {
+backEnd.post('/', function (req, res) {
     if (req.body) {
         var dataObject = req.body;
         dataObject.Message = "NodeJS WebAPI Post Test OK";
@@ -49,7 +49,7 @@ app.post('/', function (req, res) {
     }
 });
 
-app.put('/', function (req, res) {
+backEnd.put('/', function (req, res) {
     if (req.body) {
         var dataObject = req.body;
         dataObject.Message = "NodeJS WebAPI Put Test OK";
@@ -58,7 +58,7 @@ app.put('/', function (req, res) {
     }
 });
 
-app.delete('/', function (req, res) {
+backEnd.delete('/', function (req, res) {
     if (req.query) {
         var dataObject = req.query;
         dataObject.Message = "NodeJS WebAPI Delete Test OK";
@@ -67,18 +67,18 @@ app.delete('/', function (req, res) {
     }
 });
 
-app.post('/UploadImage', upload.single('file'), function (req, res, next) {
+backEnd.post('/UploadImage', upload.single('file'), function (req, res, next) {
     console.log("Getting image file: " + req.file.originalname);
     fs.rename('uploads/' + req.file.filename, 'uploads/' + req.file.filename + "_" + req.file.originalname);
     res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, originalname: req.file.originalname });
 });
 // ---------------------------------------------------------------------------------------------------------------------
 
-http.createServer(app).listen(88);
+http.createServer(backEnd).listen(88);
 console.log("Node Back End is listening to port 88");
 
-var appHttp = express();
-appHttp.use(express.static(__dirname));
-appHttp.listen(89, function () {
+var frontEnd = express();
+frontEnd.use(express.static(__dirname));
+frontEnd.listen(89, function () {
     console.log("Http Front End is listening in port 89")
 });

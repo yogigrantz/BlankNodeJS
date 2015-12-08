@@ -205,20 +205,26 @@
             <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="data"></textarea></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">Upload</div>
-            <div class="col-sm-6">
-                <input name="file1" type="file" file-model="fileUploadFile" />
-                <img ng-if="imgPreview" class="img-responsive" ng-src="{{imgPreview}}" alt="" onerror="this.src='bundle.png';" />
-                <button class="btn btn-warning" ng-click="uploadDoc()">Upload File</button>
-            </div>
-        </div>
-        <div class="row pushdown20">
             <div class="col-sm-1"></div>
             <div class="col-sm-1"><button class="btn btn-danger" ng-click="testEndPoint()">Test the EndPoint</button></div>
         </div>
         <div class="row pushdown20">
             <div class="col-sm-1 profDetailItems shaded">Result</div>
             <div class="col-sm-6"><textarea class="tallTextArea" ng-model="result"></textarea></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-1 profDetailItems shaded">Upload</div>
+            <div class="col-sm-3">
+                <input name="file1" type="file" file-model="fileUploadFile"  />
+            </div>
+            <div class="col-sm-3">
+                <button class="btn btn-warning" ng-click="uploadDoc()">Upload File</button>
+            </div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-6">
+                <img ng-if="imgPreview" class="img-responsive" ng-src="{{imgPreview}}" alt="" onerror="this.src='bundle.png';" />
+            </div>
         </div>
     </div>
 </body>
