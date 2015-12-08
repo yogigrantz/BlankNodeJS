@@ -17,6 +17,7 @@
         function ($scope, apiFactory, fileReaderFactory, fileUpload, $q) {
 
             $scope.url = "http://localhost:88";
+            $scope.uploadFileEndPoint = "UploadFile";
             $scope.method = "GET";
             $scope.data = { "mydogName": "Butter" };
             $scope.params = { "learning": "NodeJS" };
@@ -51,9 +52,13 @@
             //post file to server
             //upload document
             $scope.uploadDoc = function () {
-                var uploadUrl = $scope.url + '/UploadImage';
-                fileUpload.uploadFileToUrl($scope.fileUploadFile, uploadUrl, function (result) {
-                    $scope.result = result;
+                var uploadUrl = $scope.url + '/' + $scope.uploadFileEndPoint;
+                var fd = new FormData();
+                fd.append('msg', "File Uploaded OK");
+                fd.append('file', $scope.fileUploadFile);
+
+                fileUpload.uploadFileToUrl(fd, uploadUrl, function (result) {
+                    $scope.result = 'File Name:' + result.filename + '\n' + result.mimetype + '\n' +  result.size + ' Bytes\n' + result.message;
                 });
             }
 
@@ -129,9 +134,7 @@
             }
         })
         .service('fileUpload', ['$http', function ($http) {
-            this.uploadFileToUrl = function (file, uploadUrl, callback) {
-                var fd = new FormData();
-                fd.append('file', file);
+            this.uploadFileToUrl = function (fd, uploadUrl, callback) {
                 $http.post(uploadUrl, fd, {
                     transformRequest: angular.identity,
                     headers: { 'Content-Type': undefined }
@@ -166,23 +169,29 @@
         .pushdown20 {
             margin-top: 20px;
         }
+        .shaded {
+            background-color:#e0e0e0;
+            font-weight:bold;
+            padding-top:8px;
+            padding-bottom:5px;
+        }
     </style>
 </head>
 <body ng-app="app">
     <div class="container" ng-controller="test">
         <h4><b>NodeJS Front End Test Page</b></h4>
         <div class="row pushdown30">
-            <div class="col-sm-12 profDetailItems shaded">
+            <div class="col-sm-8 profDetailItems shaded">
                 <b>Simulated PostMan With File Upload</b>
             </div>
         </div>
 
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">URL</div>
+            <div class="col-sm-2 profDetailItems shaded">URL</div>
             <div class="col-sm-6"><input class="form form-control" type="text" ng-model="url" /></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">Method</div>
+            <div class="col-sm-2 profDetailItems shaded">Method</div>
             <div class="col-sm-6">
                 <select class="form form-control" type="text" ng-model="method">
                     <option value="GET">GET</option>
@@ -193,27 +202,31 @@
             </div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">
+            <div class="col-sm-2 profDetailItems shaded">
                 Params
             </div>
             <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="params"></textarea></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">
+            <div class="col-sm-2 profDetailItems shaded">
                 Data
             </div>
             <div class="col-sm-6"><textarea class="form form-control textarea" ng-model="data"></textarea></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-1"><button class="btn btn-danger" ng-click="testEndPoint()">Test the EndPoint</button></div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-3"><button class="btn btn-danger" ng-click="testEndPoint()">Test the EndPoint</button></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">Result</div>
+            <div class="col-sm-2 profDetailItems shaded">Result</div>
             <div class="col-sm-6"><textarea class="tallTextArea" ng-model="result"></textarea></div>
         </div>
         <div class="row pushdown20">
-            <div class="col-sm-1 profDetailItems shaded">Upload</div>
+            <div class="col-sm-2 profDetailItems shaded">Upload EndPoint</div>
+            <div class="col-sm-6"><input class="form form-control" type="text" ng-model="uploadFileEndPoint" /></div>
+        </div>
+        <div class="row pushdown20">
+            <div class="col-sm-2 profDetailItems shaded">Upload</div>
             <div class="col-sm-3">
                 <input name="file1" type="file" file-model="fileUploadFile"  />
             </div>

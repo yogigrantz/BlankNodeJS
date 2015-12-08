@@ -67,10 +67,10 @@ backEnd.delete('/', function (req, res) {
     }
 });
 
-backEnd.post('/UploadImage', upload.single('file'), function (req, res, next) {
-    console.log("Getting image file: " + req.file.originalname);
+backEnd.post('/UploadFile', upload.single('file'), function (req, res, next) {
+    console.log("Getting image file: ", req.file.originalname);
     fs.rename('uploads/' + req.file.filename, 'uploads/' + req.file.filename + "_" + req.file.originalname);
-    res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, originalname: req.file.originalname });
+    res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, size: req.file.size, message: req.body.msg });
 });
 // ---------------------------------------------------------------------------------------------------------------------
 
