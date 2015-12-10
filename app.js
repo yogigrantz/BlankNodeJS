@@ -12,7 +12,8 @@ var cors = require('cors');
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 var path = require('path');
-var fs = require("fs");
+var fs = require('fs'),
+    readline = require('readline');
 
 var http = require('http');
 var backEnd = express();
@@ -70,6 +71,17 @@ backEnd.delete('/', function (req, res) {
 backEnd.post('/UploadFile', upload.single('file'), function (req, res, next) {
     console.log("Getting image file: ", req.file.originalname);
     fs.rename('uploads/' + req.file.filename, 'uploads/' + req.file.filename + "_" + req.file.originalname);
+
+    var rd = readline.createInterface({
+        input: fs.createReadStream('uploads/' + req.file.filename + "_" + req.file.originalname),
+        output: process.stdout,
+        terminal: false
+    });
+
+    rd.on('line', function (line) {
+        console.log(line);
+    });
+
     res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, size: req.file.size, message: req.body.msg });
 });
 // ---------------------------------------------------------------------------------------------------------------------
