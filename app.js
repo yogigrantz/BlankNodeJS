@@ -78,8 +78,17 @@ backEnd.post('/UploadFile', upload.single('file'), function (req, res, next) {
         terminal: false
     });
 
+    var i = 0;
+    var fields = [];
     rd.on('line', function (line) {
-        console.log(line);
+        if (line.substr(0, 1) == '"')
+        {
+            fields = line.split('","');
+            console.log(i + ': ' + fields[0].replace('"', '') + ' ' + fields[1].replace('"', '') + ' ' + fields[2].replace('"', '') + ' ' + fields[3].replace('"', ''))
+        }
+        else
+            console.log(line);
+        i++;
     });
 
     res.json({ filename: req.file.filename + "_" + req.file.originalname, mimetype: req.file.mimetype, size: req.file.size, message: req.body.msg });
